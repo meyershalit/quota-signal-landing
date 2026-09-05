@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quota Signal</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --paper: #EEF1F0;
+    --card: #FFFFFF;
+    --ink: #161D2B;
+    --ink-muted: #5B6570;
+    --line: #D7DBD9;
+    --accent: #0E7C86;
+    --accent-soft: #DCEEEF;
+    --green: #3F7D58;
+    --green-soft: #E1EEE4;
+    --rust: #A24936;
+    --rust-soft: #F3E3DE;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #12161C;
+      --card: #181D24;
+      --ink: #E8EAE6;
+      --ink-muted: #939DA6;
+      --line: #2A2F37;
+      --accent: #4FB8C4;
+      --accent-soft: #1B3236;
+      --green: #7CBB94;
+      --green-soft: #1E2E24;
+      --rust: #E0917A;
+      --rust-soft: #33221E;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper: #12161C;
+    --card: #181D24;
+    --ink: #E8EAE6;
+    --ink-muted: #939DA6;
+    --line: #2A2F37;
+    --accent: #4FB8C4;
+    --accent-soft: #1B3236;
+    --green: #7CBB94;
+    --green-soft: #1E2E24;
+    --rust: #E0917A;
+    --rust-soft: #33221E;
+  }
+
+  * { box-sizing: border-box; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Public Sans', ui-sans-serif, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  .wrap { max-width: 760px; margin: 0 auto; padding: 72px 32px 96px; }
+  section + section { margin-top: 76px; }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 12px; font-weight: 500; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 20px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600; font-size: clamp(36px, 6.5vw, 60px);
+    line-height: 1.06; letter-spacing: -0.015em; margin: 0 0 28px;
+    text-wrap: balance;
+  }
+  h1 .num { color: var(--accent); font-variant-numeric: oldstyle-nums; }
+
+  .hero-lede {
+    font-size: 19px; color: var(--ink-muted); max-width: 56ch; margin: 0 0 36px;
+  }
+  .hero-lede strong { color: var(--ink); font-weight: 600; }
+
+  .cta-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Public Sans', sans-serif; font-size: 15px; font-weight: 600;
+    padding: 13px 24px; border-radius: 6px; text-decoration: none;
+    transition: transform .12s ease, opacity .12s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-primary { background: var(--accent); color: var(--paper); }
+  .btn-secondary { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* signal strip — the hero visual */
+  .signal-strip {
+    margin-top: 56px; display: flex; align-items: center; gap: 0;
+    padding: 22px 8px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  }
+  .signal-strip .stage { flex: 1; text-align: center; padding: 0 8px; }
+  .signal-strip .stage .k {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--ink-muted); margin-bottom: 6px;
+  }
+  .signal-strip .stage .v {
+    font-family: 'Fraunces', serif; font-size: 15px; font-weight: 500; color: var(--ink);
+  }
+  .signal-strip .arrow {
+    color: var(--line); font-family: 'IBM Plex Mono', monospace; font-size: 16px;
+    flex: none; padding: 0 4px;
+  }
+  .signal-strip .dot {
+    display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--accent); margin-right: 6px; vertical-align: middle;
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+
+  h2 {
+    font-family: 'Fraunces', serif; font-weight: 500; font-size: 27px;
+    margin: 0 0 20px; text-wrap: balance;
+  }
+
+  p { margin: 0 0 16px; max-width: 62ch; }
+  p:last-child { margin-bottom: 0; }
+  .lede-p { font-size: 17px; color: var(--ink-muted); }
+  .lede-p strong { color: var(--ink); font-weight: 600; }
+
+  .mech-list { list-style: none; margin: 24px 0 0; padding: 0; display: grid; gap: 14px; }
+  .mech-list li {
+    display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: baseline;
+    padding: 14px 0; border-bottom: 1px dashed var(--line);
+  }
+  .mech-list li:last-child { border-bottom: none; }
+  .mech-list .tag {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.04em; padding: 4px 10px; border-radius: 999px; white-space: nowrap;
+    background: var(--green-soft); color: var(--green);
+  }
+  .mech-list li:first-child .tag { background: var(--rust-soft); color: var(--rust); }
+  .mech-list .desc { font-size: 15px; color: var(--ink); }
+  .mech-list .desc b { font-weight: 600; }
+
+  .diagram-frame {
+    background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+    padding: 24px 20px; margin-top: 28px; overflow-x: auto;
+  }
+  .diagram-frame svg { display: block; width: 100%; height: auto; min-width: 480px; }
+  .diagram-frame .node { fill: var(--card); stroke: var(--ink); stroke-width: 1.3; }
+  .diagram-frame .node-text { font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500; fill: var(--ink); text-anchor: middle; dominant-baseline: middle; }
+  .diagram-frame .edge { stroke: var(--ink-muted); stroke-width: 1.2; fill: none; }
+  .diagram-frame figcaption { margin-top: 12px; font-size: 13px; color: var(--ink-muted); }
+
+  .pilot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 24px; }
+  .pilot-card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 20px 22px; }
+  .pilot-card .status {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px;
+  }
+  .pilot-card .status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  .pilot-card h3 { font-family: 'Public Sans', sans-serif; font-size: 15.5px; font-weight: 600; margin: 0 0 8px; }
+  .pilot-card p { font-size: 14px; color: var(--ink-muted); margin: 0; }
+
+  .proof-links { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+  .proof-links a {
+    font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--accent);
+    text-decoration: none; border-bottom: 1px solid transparent;
+  }
+  .proof-links a:hover { border-bottom-color: var(--accent); }
+
+  .signup-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 36px 32px; text-align: left;
+  }
+  .signup-card h2 { margin-bottom: 12px; }
+  .signup-card .fields {
+    display: flex; gap: 10px; flex-wrap: wrap; margin: 20px 0 4px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--ink-muted);
+  }
+  .signup-card .fields span { background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; }
+
+  footer {
+    margin-top: 88px; padding-top: 22px; border-top: 1px solid var(--line);
+    font-size: 13px; color: var(--ink-muted); font-family: 'IBM Plex Mono', monospace;
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  }
+  footer a { color: var(--ink-muted); }
+
+  @media (max-width: 560px) {
+    .signal-strip { flex-direction: column; gap: 14px; }
+    .signal-strip .arrow { transform: rotate(90deg); }
+    .signup-card { padding: 26px 22px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <section>
+    <p class="eyebrow">For outbound teams missing quota</p>
+    <h1>Your sequence doesn't know<br>what just happened.</h1>
+    <p class="hero-lede">Someone opens your email and doesn't reply. HubSpot, Outreach, Salesloft — none of them change what fires next. <strong>Quota Signal reads what actually happened to the last email and writes the next one to match it</strong> — before your rep has to notice, unenroll, and rebuild the sequence by hand.</p>
+
+    <div class="cta-row">
+      <a class="btn btn-primary" href="mailto:meyershalit@gmail.com?subject=Quota%20Signal%20%E2%80%94%20pilot%20access&body=Team%20size%3A%0ASequencing%20tool%20we%20use%3A%0AWhat%20we%27re%20missing%20quota%20on%3A%0A">Get pilot access</a>
+      <a class="btn btn-secondary" href="https://claude.ai/code/artifact/ee2a4475-e3d1-438c-b2f9-0c520e72b8fd">See it write a real email →</a>
+    </div>
+
+    <div class="signal-strip">
+      <div class="stage"><div class="k">Input</div><div class="v"><span class="dot"></span>5 signals</div></div>
+      <div class="arrow">&rarr;</div>
+      <div class="stage"><div class="k">Engine</div><div class="v">1 diagnosis</div></div>
+      <div class="arrow">&rarr;</div>
+      <div class="stage"><div class="k">Output</div><div class="v">1 correct reply</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Quota isn't a volume problem</h2>
+    <p class="lede-p">Reps aren't sending too little. They're sending the <strong>same next step to everyone</strong>, regardless of what the last email actually did — because reacting to a real signal today means manually unenrolling a lead, moving them to a different sequence, and rebuilding a follow-up by hand. Most reps don't have time to do that per lead, so the sequence just keeps firing on autopilot.</p>
+    <p class="lede-p">It's gotten worse, not better: Apple's Mail Privacy Protection has made open tracking unreliable for a large share of any list, so even the signal sequence tools <em>do</em> react to is now half-blind.</p>
+
+    <ul class="mech-list">
+      <li><span class="tag">dead end</span><span class="desc">Bounced — <b>flag it and move on</b>, not another templated step to a dead address.</span></li>
+      <li><span class="tag">adapt</span><span class="desc">Opened, no reply — the subject worked, the body didn't. <b>Keep the subject, rewrite the body</b>, reply in the same thread.</span></li>
+      <li><span class="tag">adapt</span><span class="desc">Clicked, no reply — relevance is proven, the ask wasn't direct enough. <b>Send a short, direct CTA</b> in the same thread.</span></li>
+      <li><span class="tag">adapt</span><span class="desc">Never opened — the subject failed, the body's unproven. <b>Full reset</b>: new angle, new subject, new thread.</span></li>
+    </ul>
+
+    <div class="diagram-frame">
+      <figure style="margin:0;">
+        <svg viewBox="0 0 640 190" role="img" aria-label="A sent email either bounces and stops, or is diagnosed by what happened to it — not opened, opened with no reply, or clicked with no reply — and each diagnosis produces a specific next email.">
+          <defs>
+            <marker id="qs-arrow" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M0,0 L8,4 L0,8 z" fill="currentColor" />
+            </marker>
+          </defs>
+          <g class="edge" color="currentColor" marker-end="url(#qs-arrow)">
+            <path d="M120,50 L120,60" />
+            <path d="M120,94 L60,94 L60,120" />
+            <path d="M120,94 L320,94 L320,120" />
+            <path d="M120,94 L500,94 L500,120" />
+          </g>
+          <rect class="node" x="55" y="10" width="130" height="40" rx="4" />
+          <text class="node-text" x="120" y="31">EMAIL SENT</text>
+
+          <rect class="node" x="55" y="60" width="130" height="34" rx="18" />
+          <text class="node-text" x="120" y="78">delivered?</text>
+
+          <rect class="node" x="10" y="122" width="100" height="40" rx="4" />
+          <text class="node-text" x="60" y="143">BOUNCED</text>
+
+          <rect class="node" x="255" y="122" width="130" height="40" rx="4" />
+          <text class="node-text" x="320" y="143">NOT OPENED</text>
+
+          <rect class="node" x="435" y="122" width="130" height="40" rx="4" />
+          <text class="node-text" x="500" y="143">OPENED</text>
+        </svg>
+      </figure>
+      <figcaption>The tree behind the demo above — full version, with every diagnosis and generated email, is in the interactive walkthrough.</figcaption>
+    </div>
+  </section>
+
+  <section>
+    <h2>Where it's running right now</h2>
+    <p class="lede-p">Two pilots, not a hundred customers — because this needs to prove real reply-rate lift before it's worth your team's time.</p>
+    <div class="pilot-grid">
+      <div class="pilot-card">
+        <span class="status">Self-run</span>
+        <h3>LAX–SFO freight quotes</h3>
+        <p>Outbound to shippers on one lane, testing adaptive follow-up against a static sequence on the same list.</p>
+      </div>
+      <div class="pilot-card">
+        <span class="status">Queued</span>
+        <h3>Mid-market SaaS, reply-only signal</h3>
+        <p>A batch of cold Unify leads with no open/click tracking — testing the version of this that works even when all you have is silence vs. a reply.</p>
+      </div>
+    </div>
+    <div class="proof-links">
+      <a href="https://claude.ai/code/artifact/ee2a4475-e3d1-438c-b2f9-0c520e72b8fd">Try the email generator →</a>
+      <a href="https://claude.ai/code/artifact/adb2fe54-414c-4bb0-b122-f9d7734a8963">See the full decision tree →</a>
+    </div>
+  </section>
+
+  <section>
+    <div class="signup-card">
+      <h2>Run it on your dead leads</h2>
+      <p class="lede-p">Send over what's gone cold after your current sequence, and what was already sent. This generates the next email for each one — you send it however you already do. No cost, no integration, just a real test of whether it moves your reply rate.</p>
+      <div class="fields">
+        <span>team size</span>
+        <span>sequencing tool</span>
+        <span>what's missing quota</span>
+      </div>
+      <div class="cta-row" style="margin-top:22px;">
+        <a class="btn btn-primary" href="mailto:meyershalit@gmail.com?subject=Quota%20Signal%20%E2%80%94%20pilot%20access&body=Team%20size%3A%0ASequencing%20tool%20we%20use%3A%0AWhat%20we%27re%20missing%20quota%20on%3A%0A">Email to get started</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Quota Signal — early pilot</span>
+    <span><a href="mailto:meyershalit@gmail.com">meyershalit@gmail.com</a></span>
+  </footer>
+
+</div>
+</body>
+</html>
