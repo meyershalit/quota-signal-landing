@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Next Email Generator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --paper: #EEF1F0;
+    --card: #FFFFFF;
+    --ink: #161D2B;
+    --ink-muted: #5B6570;
+    --line: #D7DBD9;
+    --accent: #0E7C86;
+    --accent-soft: #DCEEEF;
+    --green: #3F7D58;
+    --green-soft: #E1EEE4;
+    --rust: #A24936;
+    --rust-soft: #F3E3DE;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #12161C;
+      --card: #181D24;
+      --ink: #E8EAE6;
+      --ink-muted: #939DA6;
+      --line: #2A2F37;
+      --accent: #4FB8C4;
+      --accent-soft: #1B3236;
+      --green: #7CBB94;
+      --green-soft: #1E2E24;
+      --rust: #E0917A;
+      --rust-soft: #33221E;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper: #12161C;
+    --card: #181D24;
+    --ink: #E8EAE6;
+    --ink-muted: #939DA6;
+    --line: #2A2F37;
+    --accent: #4FB8C4;
+    --accent-soft: #1B3236;
+    --green: #7CBB94;
+    --green-soft: #1E2E24;
+    --rust: #E0917A;
+    --rust-soft: #33221E;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Public Sans', ui-sans-serif, system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  .page { max-width: 1120px; margin: 0 auto; padding: 56px 32px 88px; }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 12px; font-weight: 500; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 16px;
+  }
+
+  h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 500; font-size: clamp(28px, 4vw, 40px);
+    line-height: 1.14; letter-spacing: -0.01em; margin: 0 0 14px;
+    max-width: 22ch; text-wrap: balance;
+  }
+
+  .lede { font-size: 16.5px; color: var(--ink-muted); max-width: 66ch; margin: 0 0 36px; }
+  .lede strong { color: var(--ink); font-weight: 600; }
+
+  .presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 40px; }
+  .preset-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--ink-muted); width: 100%; margin-bottom: 4px;
+  }
+  .chip {
+    font-family: 'Public Sans', sans-serif; font-size: 13.5px; font-weight: 500;
+    background: var(--card); color: var(--ink); border: 1px solid var(--line);
+    border-radius: 999px; padding: 8px 16px; cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .chip.is-active { background: var(--accent); border-color: var(--accent); color: var(--paper); }
+
+  .workbench { display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 24px; align-items: start; }
+  @media (max-width: 860px) { .workbench { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+    padding: 24px 26px 28px;
+  }
+
+  .panel h2 {
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-muted);
+    margin: 0 0 20px;
+  }
+
+  .field { margin-bottom: 18px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label {
+    display: block; font-size: 12.5px; font-weight: 600; color: var(--ink);
+    margin-bottom: 6px;
+  }
+  .field .hint { font-size: 12px; color: var(--ink-muted); margin-top: 5px; }
+
+  input[type="text"], select, textarea {
+    width: 100%; font-family: 'Public Sans', sans-serif; font-size: 14.5px;
+    color: var(--ink); background: var(--paper); border: 1px solid var(--line);
+    border-radius: 5px; padding: 9px 11px; line-height: 1.4;
+  }
+  textarea { resize: vertical; min-height: 52px; }
+  input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 1px;
+  }
+
+  .toggle-row {
+    display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px;
+    background: var(--paper); border-radius: 6px; border: 1px solid var(--line);
+  }
+  .toggle-row input { margin-top: 3px; flex: none; width: 16px; height: 16px; accent-color: var(--accent); }
+  .toggle-row .toggle-copy { font-size: 13px; color: var(--ink-muted); }
+  .toggle-row .toggle-copy strong { color: var(--ink); font-weight: 600; }
+
+  .miss-row { display: flex; align-items: center; gap: 10px; }
+  .miss-row input[type="text"] { width: 60px; text-align: center; font-variant-numeric: tabular-nums; }
+
+  .verdict-row { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+  .pill {
+    font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 600;
+    letter-spacing: 0.03em; padding: 6px 14px; border-radius: 999px;
+    border: 1px solid; white-space: nowrap;
+  }
+  .mechanic-tag {
+    font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--ink-muted);
+  }
+
+  .reason { font-size: 15px; color: var(--ink); margin: 0 0 24px; max-width: 60ch; }
+  .reason strong { font-weight: 600; }
+
+  .email-card { border: 1px solid var(--line); border-radius: 6px; overflow: hidden; margin-bottom: 16px; }
+  .email-head {
+    background: var(--paper); padding: 12px 18px; border-bottom: 1px solid var(--line);
+    display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 13px;
+  }
+  .email-head dt {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--ink-muted); align-self: center;
+  }
+  .email-head dd { margin: 0; color: var(--ink); font-weight: 500; }
+  .email-body { padding: 18px; font-size: 14.5px; }
+  .email-body p { margin: 0; }
+
+  .regen-btn {
+    display: inline-flex; align-items: center; gap: 6px; margin-bottom: 16px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; font-weight: 500;
+    color: var(--accent); background: none; border: none; padding: 0; cursor: pointer;
+  }
+  .regen-btn:hover { text-decoration: underline; }
+  .regen-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  .terminal-note {
+    padding: 16px 18px; border-radius: 6px; font-size: 14px;
+    background: var(--paper); border: 1px dashed var(--line); color: var(--ink-muted);
+    margin-bottom: 16px;
+  }
+
+  .contrast { font-size: 13px; color: var(--ink-muted); padding-top: 14px; border-top: 1px dashed var(--line); }
+  .contrast strong { color: var(--ink); font-weight: 600; }
+
+  footer {
+    margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line);
+    font-size: 13px; color: var(--ink-muted); font-family: 'IBM Plex Mono', monospace;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <p class="eyebrow">Adaptive follow-up · try it on a lead</p>
+  <h1>What did this lead do with your last email?</h1>
+  <p class="lede">No API call, nothing sent anywhere — this runs the same rules as the decision-tree prototype entirely in your browser. <strong>Pick a preset or fill in your own lead</strong> and see exactly what goes out next, and how, instead of the fixed next step a sequence tool would fire.</p>
+
+  <div class="presets" id="presets">
+    <span class="preset-label">Load a pilot lead</span>
+  </div>
+
+  <div class="workbench">
+    <div class="panel">
+      <h2>Lead &amp; outcome</h2>
+
+      <div class="field">
+        <label for="contact">Contact</label>
+        <input type="text" id="contact" value="ops@westcoastlogix.com" />
+      </div>
+
+      <div class="field">
+        <label for="context">Lane / context</label>
+        <input type="text" id="context" value="LAX–SFO reefer freight" />
+      </div>
+
+      <div class="field">
+        <label for="priorSubject">Prior email subject</label>
+        <input type="text" id="priorSubject" value="Quick quote for your LAX-SFO lane" />
+      </div>
+
+      <div class="field">
+        <label for="priorBody">Prior email, in short</label>
+        <textarea id="priorBody">Intro + rate offer</textarea>
+      </div>
+
+      <div class="field">
+        <div class="toggle-row">
+          <input type="checkbox" id="replyOnly" />
+          <span class="toggle-copy" for="replyOnly">
+            <strong>This platform doesn't report opens or clicks</strong> — reply-only, like Armando's Unify workflow. Collapses the outcome to bounced / no reply / replied.
+          </span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="scenario">What happened</label>
+        <select id="scenario"></select>
+      </div>
+
+      <div class="field">
+        <label for="missStreak">Consecutive misses so far (before this one)</label>
+        <div class="miss-row">
+          <input type="text" id="missStreak" value="1" inputmode="numeric" />
+          <span class="hint">2+ triggers the escalation rule instead of a third rewrite.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="output">
+      <h2>What the engine sends next</h2>
+      <div id="outputBody"></div>
+    </div>
+  </div>
+
+  <footer>next email generator — client-side rules engine, no LLM call</footer>
+</div>
+
+<script>
+  const RULES = {
+    BOUNCED:    { label: 'Bounced',    tone: 'rust',   diagnosis: "The address is bad, not the message.", mechanic: null },
+    NOT_OPENED: { label: 'Not opened', tone: 'green',  diagnosis: "Subject and preview line failed to earn attention. The body is untested — not proven bad.", mechanic: 'new_thread' },
+    NO_CLICK:   { label: 'Opened · no click · no reply', tone: 'green', diagnosis: "Subject line is proven — it earned the open. The body or CTA didn't hold.", mechanic: 'reply_in_thread' },
+    CLICKED:    { label: 'Clicked · no reply', tone: 'green', diagnosis: "Strongest pre-reply signal — they engaged with the content, so relevance is established. The ask itself is the friction.", mechanic: 'reply_in_thread' },
+    REPLIED:    { label: 'Replied',    tone: 'accent', diagnosis: "Conversation started.", mechanic: null },
+    NO_REPLY:   { label: 'No reply',   tone: 'green',  diagnosis: "No open/click data available in reply-only mode — treated as a cold miss.", mechanic: 'new_thread' },
+  };
+
+  const SCENARIOS_FULL = [
+    ['not_opened', 'Not opened'],
+    ['no_click', 'Opened, no click, no reply'],
+    ['clicked', 'Clicked, no reply'],
+    ['replied', 'Replied'],
+    ['bounced', 'Bounced'],
+  ];
+  const SCENARIOS_REPLY_ONLY = [
+    ['no_reply', 'No reply yet'],
+    ['replied', 'Replied'],
+    ['bounced', 'Bounced'],
+  ];
+
+  const STATE_BY_SCENARIO_FULL = { not_opened: 'NOT_OPENED', no_click: 'NO_CLICK', clicked: 'CLICKED', replied: 'REPLIED', bounced: 'BOUNCED' };
+  const STATE_BY_SCENARIO_REPLY_ONLY = { no_reply: 'NO_REPLY', replied: 'REPLIED', bounced: 'BOUNCED' };
+
+  const PRESETS = [
+    { name: 'Bounced', contact: 'freight.buyer1@shippersinc.com', context: 'LAX–SFO pallet freight', priorSubject: 'Quick quote for your LAX-SFO lane', priorBody: 'Intro + rate offer', replyOnly: false, scenario: 'bounced', miss: 0 },
+    { name: 'Ghost — never opened', contact: 'ops@westcoastlogix.com', context: 'LAX–SFO reefer freight', priorSubject: 'Quick quote for your LAX-SFO lane', priorBody: 'Intro + rate offer', replyOnly: false, scenario: 'not_opened', miss: 1 },
+    { name: 'Opened, went quiet', contact: 'dispatch@paloaltofreight.com', context: 'LAX–SFO LTL freight', priorSubject: 'Quick quote for your LAX-SFO lane', priorBody: 'Intro + rate offer', replyOnly: false, scenario: 'no_click', miss: 0 },
+    { name: 'Clicked, no reply', contact: 'procurement@baycargo.com', context: 'LAX–SFO FTL freight', priorSubject: 'Quick quote for your LAX-SFO lane', priorBody: 'Intro + rate offer, link to rate sheet', replyOnly: false, scenario: 'clicked', miss: 0 },
+    { name: 'Replied', contact: 'jt@svfreightpartners.com', context: 'LAX–SFO pallet freight', priorSubject: 'Quick quote for your LAX-SFO lane', priorBody: 'Intro + rate offer', replyOnly: false, scenario: 'replied', miss: 0 },
+    { name: 'Armando-style (reply only)', contact: 'lead1@armandobatch.com', context: 'mid-market SaaS', priorSubject: 'Random question about your outbound', priorBody: 'Cold intro', replyOnly: true, scenario: 'no_reply', miss: 0 },
+    { name: 'Missed twice — escalates', contact: 'fleet@norcalintermodal.com', context: 'LAX–SFO intermodal freight', priorSubject: 'different angle on LAX–SFO intermodal freight', priorBody: 'Second attempt after first subject also went unopened', replyOnly: false, scenario: 'not_opened', miss: 2 },
+  ];
+
+  const $ = (id) => document.getElementById(id);
+  const contactEl = $('contact'), contextEl = $('context'), priorSubjectEl = $('priorSubject'),
+        priorBodyEl = $('priorBody'), replyOnlyEl = $('replyOnly'), scenarioEl = $('scenario'),
+        missEl = $('missStreak'), outputBodyEl = $('outputBody'), presetsEl = $('presets');
+
+  function populateScenarioOptions() {
+    const list = replyOnlyEl.checked ? SCENARIOS_REPLY_ONLY : SCENARIOS_FULL;
+    const prev = scenarioEl.value;
+    scenarioEl.innerHTML = list.map(([v, l]) => `<option value="${v}">${l}</option>`).join('');
+    const stillValid = list.some(([v]) => v === prev);
+    scenarioEl.value = stillValid ? prev : list[0][0];
+  }
+
+  function resolveState() {
+    const map = replyOnlyEl.checked ? STATE_BY_SCENARIO_REPLY_ONLY : STATE_BY_SCENARIO_FULL;
+    return map[scenarioEl.value];
+  }
+
+  function escalates(state, miss) {
+    return (state === 'NOT_OPENED' || state === 'NO_REPLY') && miss >= 2;
+  }
+
+  const TEMPLATES = {
+    NEW_THREAD: [
+      (ctx) => ({
+        subject: `different angle on ${ctx.context}`,
+        body: `Skipping the recap — figured I'd try a more direct note instead of the last one. Worth a quick look at ${ctx.context} if the timing's better now?`,
+      }),
+      (ctx) => ({
+        subject: `wrong time for ${ctx.context}?`,
+        body: `New subject, same reason for reaching out — is ${ctx.context} even on your radar right now, or should I close this out?`,
+      }),
+      (ctx) => ({
+        subject: `${ctx.context} — quick one`,
+        body: `Tried a different subject this time. A few teams dealing with ${ctx.context} have run into the same timing issue lately — is that you too, or a bad fit?`,
+      }),
+      (ctx) => ({
+        subject: `2 minutes on ${ctx.context}?`,
+        body: `New subject, shorter note: worth 2 minutes on ${ctx.context}, or should I stop reaching out?`,
+      }),
+    ],
+    NO_CLICK: [
+      (ctx) => `Following up with a different angle than last time — figured the first note didn't land right. Here's the short version on ${ctx.context}: [new proof point].`,
+      (ctx) => `Didn't want my last note to just sit there — quick question instead: what's actually driving the ${ctx.context} search for you right now?`,
+      (ctx) => `Cutting the pitch from my last note. Just want to know if ${ctx.context} is even a priority right now, or if I should check back later.`,
+      (ctx) => `Different angle than my last note: the teams we help with ${ctx.context} usually care more about turnaround time than price. Relevant to you?`,
+    ],
+    CLICKED: [
+      (ctx) => `Worth 15 minutes this week to go through ${ctx.context} specifics?`,
+      (ctx) => `Since that was useful — want to grab 15 minutes this week to talk through ${ctx.context}?`,
+      (ctx) => `Happy to walk through the ${ctx.context} numbers live — this week or next work better?`,
+      (ctx) => `What's the best way to get 15 minutes on your calendar for ${ctx.context}?`,
+    ],
+  };
+
+  let variantIndex = 0;
+
+  function nextEmail(state, ctx) {
+    if (state === 'NOT_OPENED' || state === 'NO_REPLY') {
+      const variants = TEMPLATES.NEW_THREAD;
+      const { subject, body } = variants[variantIndex % variants.length](ctx);
+      return { mechanic: 'new_thread', subject, body };
+    }
+    if (state === 'NO_CLICK') {
+      const variants = TEMPLATES.NO_CLICK;
+      return { mechanic: 'reply_in_thread', subject: null, body: variants[variantIndex % variants.length](ctx) };
+    }
+    if (state === 'CLICKED') {
+      const variants = TEMPLATES.CLICKED;
+      return { mechanic: 'reply_in_thread', subject: null, body: variants[variantIndex % variants.length](ctx) };
+    }
+    return null;
+  }
+
+  function toneVars(tone) {
+    return { fg: `var(--${tone})`, bg: `var(--${tone}-soft)` };
+  }
+
+  function render() {
+    const state = resolveState();
+    const rule = RULES[state];
+    const miss = Math.max(0, parseInt(missEl.value, 10) || 0);
+    const ctx = { context: contextEl.value.trim() || 'their lane' };
+    const escalated = escalates(state, miss);
+    const t = toneVars(rule.tone);
+
+    let html = `<div class="verdict-row">
+      <span class="pill" style="color:${t.fg}; background:${t.bg}; border-color:${t.fg};">${rule.label.toUpperCase()}</span>`;
+    if (rule.mechanic && !escalated) {
+      const mechLabel = rule.mechanic === 'new_thread' ? 'sends as a new thread' : 'replies in the same thread';
+      html += `<span class="mechanic-tag">→ ${mechLabel}</span>`;
+    }
+    html += `</div>`;
+
+    html += `<p class="reason"><strong>Diagnosis —</strong> ${rule.diagnosis}</p>`;
+
+    if (escalated) {
+      html += `<div class="terminal-note"><strong>Escalate, don't rewrite again.</strong> Two misses in a row on this lead — stop the automation and flag it for a channel switch (LinkedIn, phone) or an ICP check, not a third subject line.</div>`;
+    } else if (state === 'BOUNCED') {
+      html += `<div class="terminal-note">No further email. Removed from the cadence and flagged for list cleaning.</div>`;
+    } else if (state === 'REPLIED') {
+      html += `<div class="terminal-note">No further automated email. Handed off to whoever's running the deal.</div>`;
+    } else {
+      const email = nextEmail(state, ctx);
+      const subjectLine = email.subject || `${priorSubjectEl.value.trim() || '(prior subject)'} — same thread`;
+      html += `<div class="email-card">
+        <dl class="email-head">
+          <dt>To</dt><dd>${contactEl.value.trim() || 'contact@example.com'}</dd>
+          <dt>Subject</dt><dd>${subjectLine}</dd>
+        </dl>
+        <div class="email-body"><p>${email.body}</p></div>
+      </div>
+      <button type="button" class="regen-btn" id="regenBtn">Try another version →</button>
+      <p class="contrast"><strong>A static sequence would instead:</strong> fire the next templated step on schedule, worded the same regardless of what this lead actually did.</p>`;
+    }
+
+    outputBodyEl.innerHTML = html;
+
+    const regenBtn = $('regenBtn');
+    if (regenBtn) {
+      regenBtn.addEventListener('click', () => { variantIndex += 1; render(); });
+    }
+  }
+
+  function applyPreset(p) {
+    contactEl.value = p.contact;
+    contextEl.value = p.context;
+    priorSubjectEl.value = p.priorSubject;
+    priorBodyEl.value = p.priorBody;
+    replyOnlyEl.checked = p.replyOnly;
+    missEl.value = String(p.miss);
+    populateScenarioOptions();
+    scenarioEl.value = p.scenario;
+    variantIndex = 0;
+    render();
+    [...presetsEl.querySelectorAll('.chip')].forEach((c) => c.classList.toggle('is-active', c.dataset.name === p.name));
+  }
+
+  PRESETS.forEach((p) => {
+    const chip = document.createElement('button');
+    chip.className = 'chip';
+    chip.type = 'button';
+    chip.textContent = p.name;
+    chip.dataset.name = p.name;
+    chip.addEventListener('click', () => applyPreset(p));
+    presetsEl.appendChild(chip);
+  });
+
+  [contactEl, contextEl, priorSubjectEl, priorBodyEl, missEl].forEach((el) =>
+    el.addEventListener('input', () => { clearActiveChip(); variantIndex = 0; render(); })
+  );
+  [replyOnlyEl].forEach((el) =>
+    el.addEventListener('change', () => { clearActiveChip(); populateScenarioOptions(); variantIndex = 0; render(); })
+  );
+  scenarioEl.addEventListener('change', () => { clearActiveChip(); variantIndex = 0; render(); });
+
+  function clearActiveChip() {
+    [...presetsEl.querySelectorAll('.chip')].forEach((c) => c.classList.remove('is-active'));
+  }
+
+  populateScenarioOptions();
+  applyPreset(PRESETS[1]);
+</script>
+</body>
+</html>
