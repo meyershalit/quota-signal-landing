@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quota Signal — Value Calculator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --paper: #EEF1F0;
+    --card: #FFFFFF;
+    --ink: #161D2B;
+    --ink-muted: #5B6570;
+    --line: #D7DBD9;
+    --accent: #0E7C86;
+    --accent-soft: #DCEEEF;
+    --green: #3F7D58;
+    --green-soft: #E1EEE4;
+    --rust: #A24936;
+    --rust-soft: #F3E3DE;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #12161C; --card: #181D24; --ink: #E8EAE6; --ink-muted: #939DA6;
+      --line: #2A2F37; --accent: #4FB8C4; --accent-soft: #1B3236;
+      --green: #7CBB94; --green-soft: #1E2E24; --rust: #E0917A; --rust-soft: #33221E;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #12161C; --card: #181D24; --ink: #E8EAE6; --ink-muted: #939DA6;
+    --line: #2A2F37; --accent: #4FB8C4; --accent-soft: #1B3236;
+    --green: #7CBB94; --green-soft: #1E2E24; --rust: #E0917A; --rust-soft: #33221E;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper); color: var(--ink);
+    font-family: 'Public Sans', ui-sans-serif, system-ui, sans-serif;
+    font-size: 16px; line-height: 1.55;
+  }
+
+  .wrap { max-width: 760px; margin: 0 auto; padding: 72px 32px 96px; }
+  section + section { margin-top: 56px; }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace;
+    font-size: 12px; font-weight: 500; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--accent); margin: 0 0 20px;
+  }
+  a.back { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--ink-muted); text-decoration: none; }
+  a.back:hover { color: var(--accent); }
+
+  h1 {
+    font-family: 'Fraunces', Georgia, serif; font-weight: 600;
+    font-size: clamp(32px, 5.5vw, 48px); line-height: 1.08;
+    letter-spacing: -0.015em; margin: 16px 0 20px; text-wrap: balance;
+  }
+  h2 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 22px; margin: 0 0 14px; }
+  p { margin: 0 0 16px; max-width: 62ch; }
+  p:last-child { margin-bottom: 0; }
+  .lede-p { font-size: 17px; color: var(--ink-muted); }
+  .lede-p strong { color: var(--ink); font-weight: 600; }
+
+  .disclaimer {
+    background: var(--rust-soft); border: 1px solid var(--rust);
+    border-radius: 8px; padding: 14px 18px; font-size: 13.5px; color: var(--ink);
+  }
+  .disclaimer b { color: var(--rust); }
+
+  .calc-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 32px 28px; margin-top: 28px;
+  }
+
+  .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 24px; }
+  @media (max-width: 560px) { .field-grid { grid-template-columns: 1fr; } }
+
+  .field label {
+    display: block; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px;
+    letter-spacing: 0.03em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 8px;
+  }
+  .field input[type="number"] {
+    width: 100%; font-family: 'Public Sans', sans-serif; font-size: 16px; font-weight: 600;
+    color: var(--ink); background: var(--paper); border: 1px solid var(--line); border-radius: 6px;
+    padding: 10px 12px;
+  }
+  .field input[type="number"]:focus { outline: none; border-color: var(--accent); }
+
+  .lift-field { grid-column: 1 / -1; margin-top: 4px; padding-top: 20px; border-top: 1px dashed var(--line); }
+  .lift-row { display: flex; align-items: center; gap: 16px; }
+  .lift-row input[type="range"] { flex: 1; accent-color: var(--accent); }
+  .lift-value {
+    font-family: 'Fraunces', serif; font-weight: 600; font-size: 22px; color: var(--accent);
+    min-width: 64px; text-align: right;
+  }
+  .lift-caption { font-size: 12.5px; color: var(--ink-muted); margin-top: 8px; }
+
+  .results {
+    margin-top: 32px; padding-top: 28px; border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+  }
+  @media (max-width: 560px) { .results { grid-template-columns: 1fr 1fr; } }
+  .result-tile { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 16px 14px; }
+  .result-tile .n {
+    font-family: 'Fraunces', serif; font-weight: 600; font-size: 26px; color: var(--ink);
+    line-height: 1.1; font-variant-numeric: tabular-nums;
+  }
+  .result-tile.hero .n { color: var(--accent); }
+  .result-tile .l {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--ink-muted); margin-top: 6px;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Public Sans', sans-serif; font-size: 15px; font-weight: 600;
+    padding: 13px 24px; border-radius: 6px; text-decoration: none;
+    background: var(--accent); color: var(--paper);
+    transition: transform .12s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+
+  footer {
+    margin-top: 72px; padding-top: 22px; border-top: 1px solid var(--line);
+    font-size: 13px; color: var(--ink-muted); font-family: 'IBM Plex Mono', monospace;
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  }
+  footer a { color: var(--ink-muted); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <section>
+    <a class="back" href="/quota-signal-landing/">&larr; Quota Signal</a>
+    <p class="eyebrow" style="margin-top:20px;">Value calculator</p>
+    <h1>What's a better<br>reply rate worth to you?</h1>
+    <p class="lede-p">Plug in your own numbers. This doesn't assume a lift we haven't earned yet — <strong>you set the assumption</strong>, and it does the math on what that assumption is worth in your pipeline.</p>
+
+    <div class="disclaimer">
+      <b>Straight talk:</b> Quota Signal is pre-pilot. There's no published reply-rate benchmark yet — the concierge test with real leads hasn't reported back. Treat the "assumed lift" slider below as exactly that: your own hypothesis to stress-test, not a number we're promising.
+    </div>
+  </section>
+
+  <section>
+    <div class="calc-card">
+      <h2>Your numbers</h2>
+      <div class="field-grid">
+        <div class="field">
+          <label for="reps">Reps doing outbound</label>
+          <input type="number" id="reps" value="8" min="0">
+        </div>
+        <div class="field">
+          <label for="leads">Leads worked / rep / month</label>
+          <input type="number" id="leads" value="150" min="0">
+        </div>
+        <div class="field">
+          <label for="replyRate">Current reply rate (%)</label>
+          <input type="number" id="replyRate" value="4" min="0" max="100" step="0.1">
+        </div>
+        <div class="field">
+          <label for="closeRate">Reply → closed-won rate (%)</label>
+          <input type="number" id="closeRate" value="8" min="0" max="100" step="0.1">
+        </div>
+        <div class="field" style="grid-column: 1 / -1;">
+          <label for="dealSize">Average deal size ($ ACV)</label>
+          <input type="number" id="dealSize" value="12000" min="0" step="100">
+        </div>
+
+        <div class="lift-field">
+          <label for="lift">Assumed reply-rate lift (your estimate)</label>
+          <div class="lift-row">
+            <input type="range" id="lift" value="20" min="0" max="100" step="1">
+            <div class="lift-value"><span id="liftVal">20</span>%</div>
+          </div>
+          <p class="lift-caption">Relative lift on your current reply rate — e.g. 20% lift on a 4% reply rate = 4.8%. Move it to zero to see the baseline with no assumption at all.</p>
+        </div>
+      </div>
+
+      <div class="results">
+        <div class="result-tile">
+          <div class="n" id="outBaselineReplies">—</div>
+          <div class="l">Replies / mo today</div>
+        </div>
+        <div class="result-tile hero">
+          <div class="n" id="outExtraReplies">—</div>
+          <div class="l">Extra replies / mo</div>
+        </div>
+        <div class="result-tile hero">
+          <div class="n" id="outExtraDeals">—</div>
+          <div class="l">Extra deals / quarter</div>
+        </div>
+        <div class="result-tile hero" style="grid-column: span 3;">
+          <div class="n" id="outExtraRevenue">—</div>
+          <div class="l">Extra revenue / quarter, at your assumed lift</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>See the mechanism behind the number</h2>
+    <p class="lede-p">This calculator is hypothesis, not evidence. The actual mechanism — reading what happened to an email and writing a matching next one — is real and running. See it for yourself:</p>
+    <div class="cta-row" style="display:flex; gap:12px; flex-wrap:wrap;">
+      <a class="btn" href="/quota-signal-landing/email-generator/">Try the email generator →</a>
+    </div>
+  </section>
+
+  <footer>
+    <span>Quota Signal — early pilot</span>
+    <span><a href="mailto:meyershalit@gmail.com">meyershalit@gmail.com</a></span>
+  </footer>
+
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const fmtInt = n => Math.round(n).toLocaleString('en-US');
+  const fmtMoney = n => '$' + Math.round(n).toLocaleString('en-US');
+
+  function recalc() {
+    const reps = parseFloat($('reps').value) || 0;
+    const leadsPerRep = parseFloat($('leads').value) || 0;
+    const replyRate = parseFloat($('replyRate').value) || 0;
+    const closeRate = parseFloat($('closeRate').value) || 0;
+    const dealSize = parseFloat($('dealSize').value) || 0;
+    const lift = parseFloat($('lift').value) || 0;
+
+    $('liftVal').textContent = lift;
+
+    const monthlyLeads = reps * leadsPerRep;
+    const baselineReplies = monthlyLeads * (replyRate / 100);
+    const newReplyRate = replyRate * (1 + lift / 100);
+    const extraReplies = monthlyLeads * ((newReplyRate - replyRate) / 100);
+    const extraDealsPerMonth = extraReplies * (closeRate / 100);
+    const extraDealsPerQuarter = extraDealsPerMonth * 3;
+    const extraRevenuePerQuarter = extraDealsPerQuarter * dealSize;
+
+    $('outBaselineReplies').textContent = fmtInt(baselineReplies);
+    $('outExtraReplies').textContent = fmtInt(extraReplies);
+    $('outExtraDeals').textContent = extraDealsPerQuarter.toFixed(1);
+    $('outExtraRevenue').textContent = fmtMoney(extraRevenuePerQuarter);
+  }
+
+  ['reps','leads','replyRate','closeRate','dealSize','lift'].forEach(id => {
+    $(id).addEventListener('input', recalc);
+  });
+  recalc();
+</script>
+
+</body>
+</html>
