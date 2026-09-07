@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quota Signal — The Research</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+  :root {
+    --paper: #EEF1F0; --card: #FFFFFF; --ink: #161D2B; --ink-muted: #5B6570;
+    --line: #D7DBD9; --accent: #0E7C86; --accent-soft: #DCEEEF;
+    --green: #3F7D58; --green-soft: #E1EEE4; --rust: #A24936; --rust-soft: #F3E3DE;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #12161C; --card: #181D24; --ink: #E8EAE6; --ink-muted: #939DA6;
+      --line: #2A2F37; --accent: #4FB8C4; --accent-soft: #1B3236;
+      --green: #7CBB94; --green-soft: #1E2E24; --rust: #E0917A; --rust-soft: #33221E;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #12161C; --card: #181D24; --ink: #E8EAE6; --ink-muted: #939DA6;
+    --line: #2A2F37; --accent: #4FB8C4; --accent-soft: #1B3236;
+    --green: #7CBB94; --green-soft: #1E2E24; --rust: #E0917A; --rust-soft: #33221E;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper); color: var(--ink);
+    font-family: 'Public Sans', ui-sans-serif, system-ui, sans-serif;
+    font-size: 16px; line-height: 1.55;
+  }
+
+  .wrap { max-width: 780px; margin: 0 auto; padding: 72px 32px 96px; }
+  section + section { margin-top: 60px; }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; font-weight: 500;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin: 20px 0 20px;
+  }
+  a.back { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--ink-muted); text-decoration: none; }
+  a.back:hover { color: var(--accent); }
+
+  h1 {
+    font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: clamp(32px, 5.5vw, 48px);
+    line-height: 1.08; letter-spacing: -0.015em; margin: 0 0 20px; text-wrap: balance;
+  }
+  h2 { font-family: 'Fraunces', serif; font-weight: 500; font-size: 23px; margin: 0 0 14px; }
+  p { margin: 0 0 16px; max-width: 64ch; }
+  p:last-child { margin-bottom: 0; }
+  .lede-p { font-size: 17px; color: var(--ink-muted); }
+  .lede-p strong { color: var(--ink); font-weight: 600; }
+
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 8px; }
+  @media (max-width: 620px) { .stat-grid { grid-template-columns: 1fr; } }
+
+  .stat-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 24px 24px 20px; display: flex; flex-direction: column;
+  }
+  .stat-card .n {
+    font-family: 'Fraunces', serif; font-weight: 600; font-size: 42px; color: var(--accent);
+    line-height: 1; margin-bottom: 10px; font-variant-numeric: tabular-nums;
+  }
+  .stat-card .d { font-size: 14.5px; color: var(--ink); margin-bottom: 14px; flex: 1; }
+  .stat-card .src {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink-muted);
+    padding-top: 12px; border-top: 1px dashed var(--line);
+  }
+  .stat-card .src a { color: var(--ink-muted); }
+  .stat-card .src a:hover { color: var(--accent); }
+
+  .chain {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 30px 28px; margin-top: 8px;
+  }
+  .chain ol { margin: 0; padding-left: 22px; }
+  .chain li { margin-bottom: 14px; font-size: 15.5px; }
+  .chain li:last-child { margin-bottom: 0; }
+  .chain li b { color: var(--accent); }
+
+  .callout {
+    background: var(--accent-soft); border-radius: 10px; padding: 22px 24px; margin-top: 8px;
+  }
+  .callout p { font-size: 15.5px; }
+  .callout .label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 10px; font-weight: 600;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'Public Sans', sans-serif; font-size: 15px; font-weight: 600;
+    padding: 13px 24px; border-radius: 6px; text-decoration: none;
+    background: var(--accent); color: var(--paper); transition: transform .12s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn-secondary { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+  .cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  footer {
+    margin-top: 72px; padding-top: 22px; border-top: 1px solid var(--line);
+    font-size: 13px; color: var(--ink-muted); font-family: 'IBM Plex Mono', monospace;
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  }
+  footer a { color: var(--ink-muted); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <section>
+    <a class="back" href="/quota-signal-landing/">&larr; Quota Signal</a>
+    <p class="eyebrow">The research</p>
+    <h1>Quota isn't missed<br>at the top of the funnel.</h1>
+    <p class="lede-p">Five numbers, each from an independent 2025–2026 industry study. Put together, they explain <strong>why quota attainment has collapsed</strong> — and why the fix isn't more volume.</p>
+  </section>
+
+  <section>
+    <div class="stat-grid">
+
+      <div class="stat-card">
+        <div class="n">69%</div>
+        <div class="d">of B2B sales reps are now falling short of quota. Average attainment has slid to ~42%, down from 53% just a few years ago.</div>
+        <div class="src">Venli Consulting, "State of B2B Sales 2026" — <a href="https://venliconsulting.com/post/state-of-b2b-sales-20261" target="_blank" rel="noopener">venliconsulting.com</a></div>
+      </div>
+
+      <div class="stat-card">
+        <div class="n">3.43%</div>
+        <div class="d">average cold email reply rate in 2026 — down from 8.5% in 2019. A ~60% collapse in seven years, as outbound volume from AI SDR tools has surged 4–7x.</div>
+        <div class="src">Instantly.ai, "2026 Cold Email Benchmark Report" — <a href="https://instantly.ai/cold-email-benchmark-report-2026" target="_blank" rel="noopener">instantly.ai</a></div>
+      </div>
+
+      <div class="stat-card">
+        <div class="n">55–65%</div>
+        <div class="d">of all replies to a cold sequence come from a follow-up email — not the first send. Stop after email one and you lose most of your eventual responders.</div>
+        <div class="src">Aggregated across Woodpecker, Lemlist &amp; Instantly follow-up studies</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="n">48%</div>
+        <div class="d">of business email opens happen in Apple Mail, where Apple's own privacy proxy can trigger a tracking pixel on every message — meaning open rate can read ~100% whether a human opened it or not.</div>
+        <div class="src">Paubox / Postmark analysis of Apple Mail Privacy Protection — <a href="https://www.paubox.com/blog/how-apple-mail-privacy-protection-inflates-email-open-rates" target="_blank" rel="noopener">paubox.com</a></div>
+      </div>
+
+      <div class="stat-card" style="grid-column: 1 / -1;">
+        <div class="n">~30%</div>
+        <div class="d">of an SDR's week is actually spent selling. The rest goes to CRM entry, prospect research, and — critically — manually rebuilding a follow-up when a sequence tool's default next step doesn't fit what a lead actually did.</div>
+        <div class="src">Salesforce, "2026 State of Sales" · SalesHive SDR productivity research</div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>How the five numbers connect</h2>
+    <div class="chain">
+      <ol>
+        <li>Most replies don't come from the first email — they come from the follow-up <b>(55–65%)</b>. Follow-up isn't a nice-to-have; it's where the deal actually starts.</li>
+        <li>But reps don't have time to hand-write a good one. They're already down to <b>~30%</b> selling time, and adapting a follow-up to what a specific lead did means manually unenrolling them, reading the thread, and rewriting it — one lead at a time.</li>
+        <li>So sequence tools fire the same generic next step to everyone, regardless of signal — which is a large part of why reply rates have fallen from 8.5% to <b>3.43%</b> as more of that generic volume floods every inbox.</li>
+        <li>And the one signal that used to hint at what to write next — opens — is now unreliable for the <b>48%</b> of the inbox running Apple Mail, which can fake a 100% open rate regardless of what actually happened.</li>
+        <li>Reps sending the same fixed step into a colder, more competitive, less-observable inbox is a straight line to <b>69%</b> of reps missing quota.</li>
+      </ol>
+    </div>
+  </section>
+
+  <section>
+    <div class="callout">
+      <div class="label">Where Quota Signal fits</div>
+      <p>None of this is solved by sending more emails, or by a sequence tool with a better UI. It's solved by reading what actually happened to the <em>last</em> email — bounced, not opened, clicked-no-reply, or genuinely gone quiet — and writing the next one to match, instead of firing the same generic step regardless of signal. That's the entire mechanism, and it's real code today, not a roadmap slide.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>See the mechanism, not just the argument</h2>
+    <p class="lede-p">The research explains why this matters. These show it actually working:</p>
+    <div class="cta-row">
+      <a class="btn" href="/quota-signal-landing/decision-tree/">See the full decision tree →</a>
+      <a class="btn btn-secondary" href="/quota-signal-landing/email-generator/">Try the email generator →</a>
+      <a class="btn btn-secondary" href="/quota-signal-landing/calculator/">Size the value →</a>
+    </div>
+  </section>
+
+  <footer>
+    <span>Quota Signal — early pilot</span>
+    <span><a href="mailto:meyershalit@gmail.com">meyershalit@gmail.com</a></span>
+  </footer>
+
+</div>
+</body>
+</html>
