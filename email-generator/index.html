@@ -204,17 +204,17 @@
 
       <div class="field">
         <label for="contact">Contact</label>
-        <input type="text" id="contact" value="ops@westcoastlogix.com" />
+        <input type="text" id="contact" value="ops@fernwoodanalytics.com" />
       </div>
 
       <div class="field">
         <label for="context">Lane / context</label>
-        <input type="text" id="context" value="LAX–SFO reefer freight" />
+        <input type="text" id="context" value="rep ramp time" />
       </div>
 
       <div class="field">
         <label for="priorSubject">Prior email subject</label>
-        <input type="text" id="priorSubject" value="Quick quote for your LAX-SFO lane" />
+        <input type="text" id="priorSubject" value="Cutting rep ramp time at your team" />
       </div>
 
       <div class="field">
@@ -281,13 +281,13 @@
   const STATE_BY_SCENARIO_REPLY_ONLY = { no_reply: 'NO_REPLY', replied: 'REPLIED', bounced: 'BOUNCED' };
 
   const PRESETS = [
-    { name: 'Bounced', contact: 'freight.buyer1@shippersinc.com', context: 'LAX–SFO pallet freight', priorSubject: 'Quick quote for your LAX-SFO lane', priorBody: 'Intro + rate offer', replyOnly: false, scenario: 'bounced', miss: 0 },
-    { name: 'Ghost — never opened', contact: 'ops@westcoastlogix.com', context: 'LAX–SFO reefer freight', priorSubject: 'Quick quote for your LAX-SFO lane', priorBody: 'Intro + rate offer', replyOnly: false, scenario: 'not_opened', miss: 1 },
-    { name: 'Opened, went quiet', contact: 'dispatch@paloaltofreight.com', context: 'LAX–SFO LTL freight', priorSubject: 'Quick quote for your LAX-SFO lane', priorBody: 'Intro + rate offer', replyOnly: false, scenario: 'no_click', miss: 0 },
-    { name: 'Clicked, no reply', contact: 'procurement@baycargo.com', context: 'LAX–SFO FTL freight', priorSubject: 'Quick quote for your LAX-SFO lane', priorBody: 'Intro + rate offer, link to rate sheet', replyOnly: false, scenario: 'clicked', miss: 0 },
-    { name: 'Replied', contact: 'jt@svfreightpartners.com', context: 'LAX–SFO pallet freight', priorSubject: 'Quick quote for your LAX-SFO lane', priorBody: 'Intro + rate offer', replyOnly: false, scenario: 'replied', miss: 0 },
+    { name: 'Bounced', contact: 'ap@brightlanehq.com', context: 'Q3 renewal outreach', priorSubject: 'Quick question on your renewal process', priorBody: 'Intro + value prop', replyOnly: false, scenario: 'bounced', miss: 0 },
+    { name: 'Ghost — never opened', contact: 'ops@fernwoodanalytics.com', context: 'rep ramp time', priorSubject: 'Cutting rep ramp time at your team', priorBody: 'Intro + value prop', replyOnly: false, scenario: 'not_opened', miss: 1 },
+    { name: 'Opened, went quiet', contact: 'rev@northlinecloud.com', context: 'forecast accuracy', priorSubject: 'Forecast accuracy for your team', priorBody: 'Intro + value prop', replyOnly: false, scenario: 'no_click', miss: 0 },
+    { name: 'Clicked, no reply', contact: 'growth@lumenmetrics.io', context: 'lead routing speed', priorSubject: 'Speeding up lead routing', priorBody: 'Intro + value prop, link to case study', replyOnly: false, scenario: 'clicked', miss: 0 },
+    { name: 'Replied', contact: 'sales@ridgeportdata.com', context: 'demand-gen attribution', priorSubject: 'Demand-gen attribution for your team', priorBody: 'Intro + value prop', replyOnly: false, scenario: 'replied', miss: 0 },
     { name: 'Armando-style (reply only)', contact: 'lead1@armandobatch.com', context: 'mid-market SaaS', priorSubject: 'Random question about your outbound', priorBody: 'Cold intro', replyOnly: true, scenario: 'no_reply', miss: 0 },
-    { name: 'Missed twice — escalates', contact: 'fleet@norcalintermodal.com', context: 'LAX–SFO intermodal freight', priorSubject: 'different angle on LAX–SFO intermodal freight', priorBody: 'Second attempt after first subject also went unopened', replyOnly: false, scenario: 'not_opened', miss: 2 },
+    { name: 'Missed twice — escalates', contact: 'demand@northstarcloud.com', context: 'onboarding time reduction', priorSubject: 'different angle on onboarding time reduction', priorBody: 'Second attempt after first subject also went unopened', replyOnly: false, scenario: 'not_opened', miss: 2 },
   ];
 
   const $ = (id) => document.getElementById(id);
